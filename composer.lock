@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "79bc18d26350e10b687172be8875756f",
+    "content-hash": "ca97d0f1aeeb00f232473137f4d6cdcb",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1184,6 +1184,39 @@
                 "psr-3"
             ],
             "time": "2019-12-20T14:22:59+00:00"
+        },
+        {
+            "name": "msossai91/easegex",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/msossai91/easegex.git",
+                "reference": "2733a41b6535363d2230b97c6e931d0528ccb162"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/msossai91/easegex/zipball/2733a41b6535363d2230b97c6e931d0528ccb162",
+                "reference": "2733a41b6535363d2230b97c6e931d0528ccb162",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Msossai91\\Easegex\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matheus A Sossai",
+                    "email": "msossai91@gmail.com"
+                }
+            ],
+            "description": "A library to make regex easier to use",
+            "time": "2020-03-06T18:28:52+00:00"
         },
         {
             "name": "nesbot/carbon",
