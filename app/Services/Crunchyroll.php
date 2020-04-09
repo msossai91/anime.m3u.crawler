@@ -22,7 +22,7 @@ class Crunchyroll
 
     public function crawlerAnimes()
     {
-        $result = (new RequestGuzzle())->setUrl('https://www.crunchyroll.com/pt-br/my-hero-academia')->get();
+        $result = (new RequestGuzzle())->setUrl('https://www.crunchyroll.com/pt-br/cardcaptor-sakura-clear-card')->get();
 
         $titlePattern = '/<h1[^>]*?ellipsis[^>]*?>\s*<span[^>]*?>\s*([^<]*?)\s*<\/span/is';
         if(!$animeTitle = Easegex::regex($titlePattern, $result)->match())
@@ -38,11 +38,13 @@ class Crunchyroll
 
         $episodesList = [];
 
+        $episodesList['name'] = 'Sakura Cardcaptor: Clear Card';
+
         if(count($seasons) === 3)
         {
             foreach($seasons[1] as $key => $value)
             {
-                $episodesList[] = [
+                $episodesList['seasons'][] = [
                     'season'    => $value,
                     'episodes'  => $this->getEpisodesInfos($seasons[2][$key]),
                 ];
@@ -50,7 +52,7 @@ class Crunchyroll
         }
         elseif(count($seasons) === 2)
         {
-            $episodesList[] = [
+            $episodesList['seasons'][] = [
                 'episodes'  => $this->getEpisodesInfos($seasons[1][$key]),
             ];
         }
@@ -59,7 +61,9 @@ class Crunchyroll
             dd('Couldn\'t define the seasons matches');
         }
 
-        $this->accessEpisodes($episodesList);
+        $this->accessEpisodes($episodesList['seasons']);
+
+        $this->generateM3uFile($episodesList); exit;
 
         dd($episodesList);
 
@@ -111,7 +115,10 @@ class Crunchyroll
             {
                 $result = (new RequestGuzzle())->setUrl('https://www.crunchyroll.com/' . $episode['link'])->get();
 
-                $this->captureStreamLink($result);
+                var_dump($episode['name']);
+                sleep(1);
+
+                $episodesList[$seasonKey]['episodes'][$episodeKey]['stream'] = $this->captureStreamLink($result);
             }
         }
     }
@@ -125,15 +132,48 @@ class Crunchyroll
         }
 
         $jsonObj = json_decode($matchJson[1]);
+try{
 
+
+        $trailerPattern = '/trailer\_/is';
+        if(Easegex::regex($trailerPattern, $jsonObj->streams[0]->format)->match())
+        {
+            var_dump('trailer');
+            return;
+        }
+
+        foreach($jsonObj->streams as $key => $value)
+        {
+            if($value->hardsub_lang == 'ptBR')
+            {
+                return $value->url;
+            }
+        }
+
+
+    }catch(\Throwable $t){dd($t->getMessage());}
         dd($jsonObj);
 
         file_put_contents('teste.html', $html);
         dd('ok');
     }
 
-    public function generateM3uFile()
+    public function generateM3uFile($episodesList)
     {
+        $text = "#EXTM3U" . PHP_EOL . PHP_EOL;
 
+        foreach($episodesList['seasons'] as $seasonKey => $seasonValue)
+        {
+            foreach($seasonValue['episodes'] as $episodeKey => $episodeValue)
+            {
+                if(isset($episodeValue['stream']) && $episodeValue['stream'] !== null)
+                {
+                    $text .= "#EXTINF:-1 type=\"video\" description=\"{$episodeValue['description']}\" group-title=\"{$episodesList['name']}\" tvg-logo=\"{$episodeValue['tumb']}\", {$episodeValue['name']}" . PHP_EOL . $episodeValue['stream'] . PHP_EOL . PHP_EOL;
+                }
+                
+            }
+        }
+
+        file_put_contents("teste.m3u", $text);
     }
 }
